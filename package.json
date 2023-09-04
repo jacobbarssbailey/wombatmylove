@@ -1,7 +1,7 @@
 {
-  "name": "bsky-bot",
+  "name": "wombat-my-love",
   "version": "1.0.0",
-  "description": "A template repo for building Bluesky bots",
+  "description": "Wombat My Love is a bot that will post a picture of a wombat every day.",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -19,9 +19,8 @@
     "bot"
   ],
   "author": {
-    "name": "Phil Nash",
-    "email": "philnash@gmail.com",
-    "url": "https://philna.sh/"
+    "name": "Jacob Barss-Bailey",
+    "email": "jacob@barss-bailey.org"
   },
   "license": "MIT",
   "devDependencies": {
