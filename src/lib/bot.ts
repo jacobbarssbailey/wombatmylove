@@ -3,9 +3,15 @@ import type {
   AtpAgentLoginOpts,
   AtpAgentOpts,
   AppBskyFeedPost,
+  AppBskyEmbedImages,
 } from "@atproto/api";
 import atproto from "@atproto/api";
 const { BskyAgent, RichText } = atproto;
+import type { Post } from './types.js';
+import sharp from 'sharp';
+import { getImage } from './getImage.js';
+
+const IMAGE_PATH = "./img/wombat.jpg"
 
 type BotOptions = {
   service: string | URL;
@@ -27,25 +33,43 @@ export default class Bot {
   login(loginOpts: AtpAgentLoginOpts) {
     return this.#agent.login(loginOpts);
   }
-
-  async post(
-    text:
-      | string
-      | (Partial<AppBskyFeedPost.Record> &
-          Omit<AppBskyFeedPost.Record, "createdAt">)
-  ) {
-    if (typeof text === "string") {
-      const richText = new RichText({ text });
+  
+  // post image
+  async post(post: Post) {
+    const payload: Partial<AppBskyFeedPost.Record> = {
+      $type: 'app.bsky.feed.post',
+      text: ''
+    };
+    if (post.text) {
+      const richText = new RichText({ text: post.text });
       await richText.detectFacets(this.#agent);
-      const record = {
-        text: richText.text,
-        facets: richText.facets,
-      };
-      return this.#agent.post(record);
-    } else {
-      return this.#agent.post(text);
+
+      payload.text = richText.text;
+      payload.facets = richText.facets;
     }
+    if (post.pathList) {
+      const embed: AppBskyEmbedImages.Main = {
+        $type: 'app.bsky.embed.images',
+        images: []
+      };
+
+      for (const imagePath of post.pathList) {
+        const imageBuffer = await sharp(imagePath).resize(1280).toFormat('jpg').toBuffer();
+        const uploaded = await this.#agent.uploadBlob(imageBuffer, {
+          encoding: 'image/png'
+        });
+
+        embed.images.push({
+          image: uploaded.data.blob,
+          alt: 'wombat'
+        });
+      }
+      payload.embed = embed;
+    }
+
+    return this.#agent.post(payload);
   }
+
 
   static async run(
     getPostText: () => Promise<string>,
@@ -57,8 +81,20 @@ export default class Bot {
     const bot = new Bot(service);
     await bot.login(bskyAccount);
     const text = await getPostText();
-    if (!dryRun) {
-      await bot.post(text);
+    const image = getImage();
+    if (image) {
+      console.log('Selected image:', image);
+    } else {
+      console.log('No image files found in the directory.');
+    }
+    if (image) {
+      const p : Post = {
+        text: text,
+        pathList: [image]
+      }
+      if (!dryRun) {
+        await bot.post(p);
+      }
     }
     return text;
   }
