@@ -1,8 +1,10 @@
 # Bluesky wombot 🦋
 
+[wombatmylove on bluesky](https://bsky.app/profile/wombatmylove.bsky.social)
+
 Bot based on a [template repo for building Bluesky bots that post on their own schedule](https://github.com/philnash/bsky-bot). It uses [TypeScript](https://www.typescriptlang.org/) to build the bot and [GitHub Actions](https://docs.github.com/en/actions) to schedule the posts.
 
-When run, it selects a random image from a directory until it finds one that hasn't been posted. It then reads and rescales it to fit into Bluesky's 1MB blob limit, posts it, and records it as posted to avoid duplicates.
+When run, it selects a random wombat image from `/img` until it finds one that hasn't been posted. It then reads and rescales it to fit into Bluesky's 1MB blob limit, posts it, and records it as posted to avoid duplicates.
 
 ## How to use
 
