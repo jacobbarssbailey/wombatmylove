@@ -1,25 +1,14 @@
 # Bluesky wombot 🦋
 
-Bot based on a template repo for building [Bluesky](https://bsky.app/) bots that post on their own schedule. It uses [TypeScript](https://www.typescriptlang.org/) to build the bot and [GitHub Actions](https://docs.github.com/en/actions) to schedule the posts.
+Bot based on a [template repo for building Bluesky bots that post on their own schedule](https://github.com/philnash/bsky-bot). It uses [TypeScript](https://www.typescriptlang.org/) to build the bot and [GitHub Actions](https://docs.github.com/en/actions) to schedule the posts.
 
-* [How to use](#how-to-use)
-  * [Things you will need](#things-you-will-need)
-    * [A Bluesky account](#a-bluesky-account)
-    * [Node.js](#nodejs)
-  * [Create a new repository from this template](#create-a-new-repository-from-this-template)
-  * [Running locally to test](#running-locally-to-test)
-  * [Create your own posts](#create-your-own-posts)
-  * [Deploy](#deploy)
-    * [Schedule](#schedule)
-    * [Environment variables](#environment-variables)
-  * [Set it live](#set-it-live)
-
+When run, it selects a random image from a directory until it finds one that hasn't been posted. It then reads and rescales it to fit into Bluesky's 1MB blob limit, posts it, and records it as posted to avoid duplicates.
 
 ## How to use
 
 To run this bot locally on your own machine you will need [Node.js](https://nodejs.org/en) version 18.16.0.
 
-#### Schedule
+### Schedule
 
 The schedule is controlled by the GitHub Actions workflow in [./.github/workflows/post.yml](./.github/workflows/post.yml). The [schedule trigger](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) uses cron syntax to schedule when the workflow runs and your bot posts. [Crontab Guru](https://crontab.guru/) is a good way to visualise it.
 
