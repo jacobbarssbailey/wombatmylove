@@ -21,3 +21,10 @@ jobs:
         env:
           BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
           BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9.1.4
+        with:
+          author_name: Jacob Barss-Bailey
+          author_email: jacob@barss-bailey.org
+          message: 'updating image_list.txt'
+          add: '*.txt'
