@@ -35,10 +35,13 @@ if __name__ == "__main__":
     sys.exit(0)
   for filename in os.listdir("img_staging"):
     if filename.endswith(".png") or filename.endswith(".jpg"):
-      print ("[old] " + filename)
-      label = generate_alt_text("img_staging/" + filename)
-      file_extension = os.path.splitext(filename)[1]
-      
-      os.rename("img_staging/" + filename, "img_staging/" + label + file_extension)
-      print ("[new] " + label + file_extension + "\n")
+      try:
+        print ("[old] " + filename)
+        label = generate_alt_text("img_staging/" + filename)
+        file_extension = os.path.splitext(filename)[1]
+        
+        os.rename("img_staging/" + filename, "img_staging/" + label + file_extension)
+        print ("[new] " + label + file_extension + "\n")
+      except:
+        print ("[error] failure"+ "\n")
   
