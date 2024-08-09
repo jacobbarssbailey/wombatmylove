@@ -59,9 +59,11 @@ export default class Bot {
           encoding: 'image/jpg'
         });
 
+        const altText = (imagePath.split('/').pop() ?? '').split('.')[0];
+
         embed.images.push({
           image: uploaded.data.blob,
-          alt: 'wombat'
+          alt: altText
         });
       }
       payload.embed = embed;
