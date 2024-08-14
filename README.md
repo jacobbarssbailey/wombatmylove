@@ -4,13 +4,20 @@
 
 Bot based on a [template repo for building Bluesky bots that post on their own schedule](https://github.com/philnash/bsky-bot). It uses [TypeScript](https://www.typescriptlang.org/) to build the bot and [GitHub Actions](https://docs.github.com/en/actions) to schedule the posts.
 
-When run, it selects a random wombat image from `/img` until it finds one that hasn't been posted. It then reads and rescales it to fit into Bluesky's 1MB blob limit, posts it, and records it as posted to avoid duplicates.
+When run, it selects a random wombat image from `/img` until it finds one that hasn't been posted. It then reads and rescales it to fit into Bluesky's 1MB blob limit, posts it, and records it as posted to avoid duplicates. Alt text is set to the filename of the image.
 
-## How to use
+## Adding new images
 
-To run this bot locally on your own machine you will need [Node.js](https://nodejs.org/en) version 18.16.0.
+1. Add images to the `/img_staging` directory
+2. Run `python labeler.py` to rename the images with chatgpt-generate alt text
+3. Move the images to the `/img` directory
 
-### Schedule
+## Running locally
+
+`npm run build`
+`npm start`
+
+## Scheduling
 
 The schedule is controlled by the GitHub Actions workflow in [./.github/workflows/post.yml](./.github/workflows/post.yml). The [schedule trigger](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) uses cron syntax to schedule when the workflow runs and your bot posts. [Crontab Guru](https://crontab.guru/) is a good way to visualise it.
 
