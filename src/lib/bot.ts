@@ -59,7 +59,7 @@ export default class Bot {
           encoding: 'image/jpg'
         });
 
-        const altText = (imagePath.split('/').pop() ?? '').split('.')[0];
+        const altText = (imagePath.split('/').pop() ?? '').split('.')[0].replace("credit ", "credit: ")
 
         embed.images.push({
           image: uploaded.data.blob,

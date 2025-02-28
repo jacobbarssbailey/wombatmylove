@@ -15,7 +15,7 @@ def generate_alt_text(image_path):
   completion = client.chat.completions.create(
     model=MODEL,
     messages=[
-      {"role": "system", "content": "You are an alt text generator assistant. You are asked to generate alt text for the image provided. Images are always photos of wombats, both common and hairy-nosed, but there may be other animals or people. All text should be consise, using only lowercase alphanumerical characters with no punctuation. Keep it under 100 characters. don't use the word cozy. its okay to have fun."},
+      {"role": "system", "content": f"You are an alt text generator assistant. You are asked to generate alt text for the image provided. Images are always photos of wombats, both common and hairy-nosed, but there may be other animals or people. All text should be consise, using only lowercase alphanumerical characters with no punctuation. Keep it under 100 characters. don't use the word cozy. its okay to have fun. if the original filename ({image_path}) contains a credit to the photographer (usually 'Photo by <photographer name>…'), add this credit to the end of the alt text, like '<alt text description> (credit: <photographer name>)', e.g. 'Wombat with grass on its head sitting on a log (credit: John Smith)'."},
       {"role": "user", "content": [
         {"type": "text", "text": "Generate alt text for this image:"},
         {"type": "image_url", "image_url": {
@@ -25,6 +25,7 @@ def generate_alt_text(image_path):
     ]
   )
 
+  print(completion.choices[0].message.content)
   return completion.choices[0].message.content
 
 if __name__ == "__main__":
