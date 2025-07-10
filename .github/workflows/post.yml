@@ -27,5 +27,4 @@ jobs:
           author_name: Jacob Barss-Bailey
           author_email: jacob@barss-bailey.org
           message: 'updating image_list.txt'
-          ref: ${{ github.event.pull_request.head.ref }}
           add: '*.txt'
