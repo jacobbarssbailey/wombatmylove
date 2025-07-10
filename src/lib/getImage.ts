@@ -15,8 +15,19 @@ function getImage(): string | null {
   const randomIndex = Math.floor(Math.random() * imageFiles.length);
   const randomImage = imageFiles[randomIndex];
 
-  // Append the filename to the list file
+  // Check if the random image is already in the list file
   const listFilePath = path.join(IMAGE_DIRECTORY_PATH, 'image_list.txt');
+  if (fs.existsSync(listFilePath)) {
+    const listContent = fs.readFileSync(listFilePath, 'utf-8');
+    if (listContent.includes(randomImage)) {
+      return getImage(); // Recursively get another image if already listed
+    }
+  } else {
+    // Create the list file if it doesn't exist
+    fs.writeFileSync(listFilePath, '');
+  }
+
+  // Append the filename to the list file
   fs.appendFileSync(listFilePath, randomImage + '\n');
 
   return path.join(IMAGE_DIRECTORY_PATH, randomImage);
