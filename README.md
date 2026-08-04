@@ -10,7 +10,7 @@ When run, it selects a random wombat image from `/img` until it finds one that h
 
 0. Setup python env: `source .venv/bin/activate` / `pip install -r /path/to/requirements.txt` / etc.
 1. Add images to the `/img_staging` directory
-2. Run `python labeler.py` to rename the images with chatgpt-generate alt text
+2. Export `ANTHROPIC_API_KEY`, then run `python labeler.py` to rename the images with Claude-generated alt text
 3. Move the images to the `/img` directory
 
 ## Running locally
