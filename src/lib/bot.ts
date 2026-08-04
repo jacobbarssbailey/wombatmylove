@@ -54,7 +54,7 @@ export default class Bot {
       };
 
       for (const imagePath of post.pathList) {
-        const imageBuffer = await sharp(imagePath).resize(1280).toFormat('jpg').toBuffer();
+        const imageBuffer = await sharp(imagePath).resize(1280).toFormat('jpeg').toBuffer();
         const uploaded = await this.#agent.uploadBlob(imageBuffer, {
           encoding: 'image/jpg'
         });
