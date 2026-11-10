@@ -30,4 +30,6 @@ jobs:
           author_name: Jacob Barss-Bailey
           author_email: jacob@barss-bailey.org
           message: 'updating image_list.txt'
-          add: '*.txt'
+          add: 'img/image_list.txt'
+          # Rebase onto anything pushed while the job ran (e.g. new images) instead of being rejected.
+          pull: '--rebase --autostash'
