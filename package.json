@@ -31,11 +31,11 @@
     "eslint-plugin-sonarjs": "^0.19.0",
     "node-env-run": "^4.0.2",
     "typescript": "^5.0.4",
-    "vitest": "^3.2.7"
+    "vitest": "^5.1.0"
   },
   "dependencies": {
     "@atproto/api": "^0.30.3",
-    "sharp": "^0.35.3",
-    "zod": "^3.22.3"
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
   }
 }
