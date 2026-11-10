@@ -3,6 +3,7 @@ import os, sys
 import base64
 import re
 import subprocess
+import unicodedata
 from dotenv import load_dotenv
 
 ## Read ANTHROPIC_API_KEY from .env; an already-exported value wins.
@@ -10,6 +11,35 @@ load_dotenv()
 
 MEDIA_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
 VIDEO_EXTENSIONS = {".mp4"}
+# Folders whose filenames must stay unique: a label that matches an existing
+# file would overwrite it (staging/img) or be treated as already posted.
+UNIQUE_ACROSS = ["img_staging", "img", "img_posted"]
+
+def credit_filename(filename):
+  """Rewrite downloader credit formats into the 'Photo by <name> - ...' form the prompt expects."""
+  filename = re.sub(r'^(.*?)-(?:photo|video)-(.*?)$', r'Photo by \1 - \2', filename)
+  return re.sub(r'^(?!Photo by )(.*) by @?(\S+?)(\.\w+)$', r'Photo by \2 - \1\3', filename)
+
+def sniff_media_type(path, fallback):
+  """Detect the real image type from magic bytes (some downloads are WebP saved as .jpg)."""
+  with open(path, "rb") as f:
+    head = f.read(12)
+  if head[:3] == b"\xff\xd8\xff": return "image/jpeg"
+  if head[:8] == b"\x89PNG\r\n\x1a\n": return "image/png"
+  if head[:4] == b"RIFF" and head[8:12] == b"WEBP": return "image/webp"
+  if head[:6] in (b"GIF87a", b"GIF89a"): return "image/gif"
+  return fallback
+
+def unique_name(label, ext, current):
+  """`label + ext`, or `label~N + ext` if another file already has that name. The bot strips ~N from alt text."""
+  taken = {unicodedata.normalize("NFC", f).lower()
+           for d in UNIQUE_ACROSS if os.path.isdir(d)
+           for f in os.listdir(d) if not (d == "img_staging" and f == current)}
+  name, n = label + ext, 1
+  while unicodedata.normalize("NFC", name).lower() in taken:
+    n += 1
+    name = f"{label}~{n}{ext}"
+  return name
 
 def video_frames(video_path, count=3):
   """Grab `count` evenly spaced JPEG frames from a video with ffmpeg."""
@@ -41,7 +71,7 @@ def generate_alt_text(image_path):
     images = [("image/jpeg", base64.b64encode(f).decode("utf-8")) for f in video_frames(image_path)]
     prompt = "These are frames from one short video. Generate alt text for the video:"
   else:
-    images = [(MEDIA_TYPES[ext], encode_image(image_path))]
+    images = [(sniff_media_type(image_path, MEDIA_TYPES[ext]), encode_image(image_path))]
     prompt = "Generate alt text for this image:"
 
   message = client.beta.messages.create(
@@ -83,15 +113,18 @@ if __name__ == "__main__":
       try:
         print ("[old] " + filename)
         # if new filename format, change to match old downloader
-        credit_transformed_filename = re.sub(r'^(.*?)-(?:photo|video)-(.*?)$', r'Photo by \1 - \2', filename)
+        credit_transformed_filename = credit_filename(filename)
         os.rename("img_staging/" + filename, "img_staging/" + credit_transformed_filename)
         filename = credit_transformed_filename
 
         label = generate_alt_text("img_staging/" + filename)
         file_extension = os.path.splitext(filename)[1]
         
-        os.rename("img_staging/" + filename, "img_staging/" + label + file_extension)
-        print ("[new] " + label + file_extension + "\n")
+        if "/" in label or not label:
+          raise ValueError("unusable label: " + repr(label))
+        new_name = unique_name(label, file_extension, filename)
+        os.rename("img_staging/" + filename, "img_staging/" + new_name)
+        print ("[new] " + new_name + "\n")
       except Exception as e:
         print ("[error] failure"+ "\n")
         print (str(e) + "\n")

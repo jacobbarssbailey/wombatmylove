@@ -34,6 +34,9 @@ describe("altTextFromPath", () => {
   it("strips directory and only the final extension", () => {
     expect(altTextFromPath("img/a wombat named st. clair.jpg")).toBe("a wombat named st. clair");
   });
+  it("drops the ~N uniqueness suffix added by labeler.py", () => {
+    expect(altTextFromPath("img/wombat in grass (credit: Jane)~2.jpg")).toBe("wombat in grass (credit: Jane)");
+  });
   it("fixes legacy 'credit ' to 'credit: '", () => {
     expect(altTextFromPath("img/wombat (credit Jane).jpg")).toBe("wombat (credit: Jane)");
   });

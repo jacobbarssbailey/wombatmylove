@@ -28,7 +28,15 @@ export function shuffle<T>(items: readonly T[], random: () => number = Math.rand
   return out;
 }
 
-/** The filename (minus its final extension) is the alt text. */
+/**
+ * The filename (minus its final extension) is the alt text. A trailing `~N`
+ * is a uniqueness suffix added by labeler.py when two files get the same label.
+ */
 export function altTextFromPath(filePath: string): string {
-  return normalizeName(path.basename(filePath).replace(/\.[^.]+$/, "")).replace("credit ", "credit: ");
+  return normalizeName(
+    path
+      .basename(filePath)
+      .replace(/\.[^.]+$/, "")
+      .replace(/~\d+$/, "")
+  ).replace("credit ", "credit: ");
 }
