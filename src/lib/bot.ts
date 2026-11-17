@@ -11,6 +11,7 @@ import sharp from "sharp";
 import { altTextFromPath, isVideo } from "./getImage.js";
 import { readMp4Info } from "./mp4.js";
 import type { Poster } from "./run.js";
+import { uploadVideo } from "./videoUpload.js";
 
 /** How many of the account's own recent posts to check for duplicates. */
 const RECENT_POST_LIMIT = 100;
@@ -76,10 +77,25 @@ export default class Bot implements Poster {
     }
     const { width, height, durationSeconds } = readMp4Info(buffer);
     console.log(`Video: ${width}x${height}, ${durationSeconds.toFixed(1)}s, ${(buffer.length / 1e6).toFixed(1)}MB`);
-    const { data } = await this.#agent.uploadBlob(buffer, { encoding: "video/mp4" });
+    const did = this.#agent.session?.did;
+    if (!did) throw new Error("not logged in");
+    // Must go through video.bsky.app, not agent.uploadBlob: a raw PDS blob is
+    // never transcoded and the post shows an unplayable video.
+    const blob = await uploadVideo(buffer, path.basename(videoPath), {
+      did,
+      getServiceAuthToken: async () => {
+        const pds = this.#agent.pdsUrl ?? this.#agent.dispatchUrl;
+        const { data } = await this.#agent.com.atproto.server.getServiceAuth({
+          aud: `did:web:${pds.hostname}`,
+          lxm: "com.atproto.repo.uploadBlob",
+          exp: Math.floor(Date.now() / 1000) + 30 * 60,
+        });
+        return data.token;
+      },
+    });
     return {
       $type: "app.bsky.embed.video",
-      video: data.blob,
+      video: blob,
       alt: altTextFromPath(videoPath),
       aspectRatio: { width, height },
     };
